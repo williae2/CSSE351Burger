@@ -43,12 +43,12 @@ var Projection1 = perspective(90, 1, 1, 40);
 var Projection2 = frustum(-5, 5, -2.5, 2.5, 10, 40);
 
 //var AmbientLight = vec3(1.0, 1.0, 1.0);
-var AmbientLight = vec3(1.0, 1.0, 1.0);
-var LightColor1 = vec3(0.0, 0.0, 1.0);
-var LightPosition1 = vec4(0.0, 0.0, 5.0, 1.0); // in world coordinates
-var LightPosition2 = vec4(0.0, 0.0, -5.0, 1.0);
+var AmbientLight = vec3(.4, .4, .4);
+var LightColor1 = vec3(1.0, 0.0, 0.0);
+var LightPosition1 = vec4(1.0, 1.0, 5.0, 1.0); // in world coordinates
+var LightPosition2 = vec4(-1.0, 1.0, 5.0, 1.0);
 var LightColor2 = vec3(1.0, 0.0, 0.0);
-var Shininess = 50;
+var Shininess = 500;
 
 var ModelViewMatrixLoc;
 var NormalMatrixLoc;
@@ -227,8 +227,7 @@ window.onload = function init()
 
     LightPositionLoc1 = gl.getUniformLocation(program, "uLightPosition[0]");
     gl.uniform4fv(LightPositionLoc1, LightPosition1);
-
-    
+ 
     LightPositionLoc2 = gl.getUniformLocation(program, "uLightPosition[1]");
     gl.uniform4fv(LightPositionLoc2, LightPosition2);
 
@@ -243,7 +242,6 @@ window.onload = function init()
     gl.uniform1f(DiffuseOnLoc, 1.0);
     gl.uniform1f(SpecularOnLoc, 1.0);
     gl.uniform1f(AmbientOnLoc, 1.0);
-    gl.uniform1f(TextureOnLoc, 1.0);
 
     texture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0);

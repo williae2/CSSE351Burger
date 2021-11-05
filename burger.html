@@ -78,11 +78,11 @@ main()
     vec3 diffuse = uDiffuseOn*Kd*uLightColor[i]*vColor.rgb;
     diffuse = diffuse * (1.0/(.1+.1*distance+(.1*distance*distance)));
     vec3 specular = uSpecularOn*Ks*uLightColor[i];
-    if (dot(L, N) < 0.0 || i == 1) {
+    if (dot(L, N) < 0.0) {
       specular = vec3(0.0, 0.0, 0.0);
     }
     opuD += specular+ambient+diffuse;
-    specD+=specular;
+    specD += specular;
   }
 
   if (uTextureOn == 1.0) {
