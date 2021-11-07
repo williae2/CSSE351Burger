@@ -8,9 +8,13 @@ var colors = [];
 var normals = [];
 var texcoords = [];
 
-var cubePoints = 36;
+var burgerPoints = 0;
 var wallPoints = 6;
-
+var topBunPoints = 0;
+var lettucePoints = 0;
+var tomatoPoints = 0;
+var cheesePoints = 0;
+var pattyPoints = 0;
 var xAxis = 0;
 var yAxis = 1;
 var zAxis = 2;
@@ -19,7 +23,7 @@ var cheese = true;
 var tomato = true;
 var patty = true;
 var lettuce = true;
-
+var numPtsCirc = 500;
 var axis = 1;
 var theta = [0, 0, 0];
 
@@ -70,17 +74,17 @@ var texture;
 
 var texSize = 64;
 
-function quad(a, b, c, d)
+function quad(a, b, c, d, color, y1, y2)
 {
     var vertices = [
-        vec4(-0.5, -0.5,  0.5, 1.0),
-        vec4(-0.5,  0.5,  0.5, 1.0),
-        vec4( 0.5,  0.5,  0.5, 1.0),
-        vec4( 0.5, -0.5,  0.5, 1.0),
-        vec4(-0.5, -0.5, -0.5, 1.0),
-        vec4(-0.5,  0.5, -0.5, 1.0),
-        vec4( 0.5,  0.5, -0.5, 1.0),
-        vec4( 0.5, -0.5, -0.5, 1.0)
+        vec4(-0.5, y1,  0.5, 1.0),
+        vec4(-0.5,  y2,  0.5, 1.0),
+        vec4( 0.5,  y2,  0.5, 1.0),
+        vec4( 0.5, y1,  0.5, 1.0),
+        vec4(-0.5, y1, -0.5, 1.0),
+        vec4(-0.5,  y2, -0.5, 1.0),
+        vec4( 0.5,  y2, -0.5, 1.0),
+        vec4( 0.5, y1, -0.5, 1.0)
     ];
 
     var vertexColors = [
@@ -106,7 +110,7 @@ function quad(a, b, c, d)
 
     for (var i=0; i<indices.length; ++i ) {
         points.push(vertices[indices[i]]);
-        colors.push(vertexColors[a]);
+        colors.push(vertexColors[color]);
 
 	var n = normalize(cross(subtract(vertices[b], vertices[a]),
 				subtract(vertices[c], vertices[a])));
@@ -117,14 +121,103 @@ function quad(a, b, c, d)
 
 function color_cube()
 {
-    quad(1, 0, 3, 2);
-    quad(2, 3, 7, 6);
-    quad(3, 0, 4, 7);
-    quad(6, 5, 1, 2);
-    quad(4, 5, 6, 7);
-    quad(5, 4, 0, 1);
+    quad(1, 0, 3, 2, 3);
+    quad(2, 3, 7, 6, 3);
+    quad(3, 0, 4, 7, 3);
+    quad(6, 5, 1, 2, 3);
+    quad(4, 5, 6, 7, 3);
+    quad(5, 4, 0, 1, 3);
+    
 }
 
+function drawCyl(startX,startY,height,offset,radius,color) {
+    const angle = 2 * Math.PI / numPtsCirc;
+
+    //repeated to properly draw elements of cyllinder
+    // top
+    for (let i = 0; i < numPtsCirc; i++) {
+        var inc = angle * i;
+        var x = startX + radius * Math.cos(inc);
+        var y = startY + radius * Math.sin(inc);
+        colors.push(color);
+        // var n = normalize(cross(subtract(vertices[b], vertices[a]),
+		// 		subtract(vertices[c], vertices[a])));
+	    // normals.push(n);
+        points.push(vec4(x, height-offset, y, 1.0));
+    }
+    // base
+    for (let i = 0; i < numPtsCirc; i++) {
+        var inc = angle * i;
+        var x = startX + radius * Math.cos(inc);
+        var y = startY + radius * Math.sin(inc);
+        colors.push(color);
+        points.push(vec4(x, height,y, 1.0));
+    }
+
+    // column
+    for (let i = 0; i < numPtsCirc*2; i++) {
+        var inc = angle * i;
+        var x = startX + radius * Math.cos(inc);
+        var y = startY + radius * Math.sin(inc);
+        colors.push(color);
+        colors.push(color);
+        var n = normalize(vec4(x-startX,y-startY,0));
+	    normals.push(n);
+        normals.push(n);
+        points.push(vec4(x, height-offset, y, 1.0));
+        points.push(vec4(x, height, y, 1.0));
+    }
+}
+function build_top_bun() {
+    // TODO finish this method
+}
+
+function build_lettuce() {
+    quad(1, 0, 3, 2, 3,0.125,0.1875);
+    quad(2, 3, 7, 6, 3,0.125,0.1875);
+    quad(3, 0, 4, 7, 3,0.125,0.1875);
+    quad(6, 5, 1, 2, 3,0.125,0.1875);
+    quad(4, 5, 6, 7, 3,0.125,0.1875);
+    quad(5, 4, 0, 1, 3,0.125,0.1875);
+    lettucePoints+=36;
+    burgerPoints+=36;
+}
+
+function build_cheese() {
+    //TODO Fix
+    quad(1, 0, 3, 2, 2,0.125,0.1875);
+    quad(2, 3, 7, 6, 2,0.125,0.1875);
+    quad(3, 0, 4, 7, 2,0.125,0.1875);
+    quad(6, 5, 1, 2, 2,0.125,0.1875);
+    quad(4, 5, 6, 7, 2,0.125,0.1875);
+    quad(5, 4, 0, 1, 2,0.125,0.1875);
+    cheesePoints+=36;
+    burgerPoints+=36;
+}
+function build_tomato() {
+    drawCyl(0,0,0,-0.125,0.65,vec4(0.9,0,0,1))
+    tomatoPoints += 6*numPtsCirc;
+    burgerPoints += 6*numPtsCirc;
+}
+
+function build_patty(){
+    drawCyl(0,0,-.25,-0.25,0.75,vec4(0.9,0.35,0.05,1))
+    pattyPoints += 6*numPtsCirc;
+    burgerPoints += 6*numPtsCirc;
+}
+
+function build_bottom_bun() {
+    drawCyl(0,0,-0.5,-0.25,0.75,vec4(1,1,0,1))
+    burgerPoints += 6*numPtsCirc;
+}
+function build_burger() {
+    build_top_bun();
+    build_lettuce();
+    // build_cheese();
+    build_tomato();
+    build_patty();
+    build_bottom_bun();
+}
 function wall()
 {
     var vertices = [
@@ -163,14 +256,14 @@ window.onload = function init()
     gl = canvas.getContext('webgl2');
     if (!gl) { alert("WebGL 2.0 isn't available"); }
 
-    color_cube();
+    build_burger();
     wall();
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.5, 0.5, 0.5, 1.0);
 
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
+    // gl.enable(gl.CULL_FACE);
 
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
@@ -440,7 +533,7 @@ function render() {
     gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 
     if (altView) {
-	gl.drawArrays(gl.LINE_LOOP, cubePoints, wallPoints);
+	gl.drawArrays(gl.LINE_LOOP, burgerPoints, wallPoints);
     }
 
     ModelView = mult(ModelView,
@@ -453,8 +546,12 @@ function render() {
     gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
     gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 
-    gl.drawArrays(gl.TRIANGLES, 0, cubePoints);
-
+    gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
+    // gl.drawArrays(gl.TRIANGLES, topBunPoints, lettucePoints);
+    // gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints, tomatoPoints);
+    // gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints, cheesePoints);
+    // gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints+cheesePoints, pattyPoints);
+    // gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints+cheesePoints+pattyPoints,burgerPoints);
     // Draw scene
     if (!altView) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -476,7 +573,7 @@ function render() {
 	gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
 	gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 	
-	gl.drawArrays(gl.TRIANGLES, cubePoints, wallPoints);
+	gl.drawArrays(gl.TRIANGLES, burgerPoints, wallPoints);
     
 	if (obj) {
 	    ModelView = mult(ModelView,
@@ -490,7 +587,13 @@ function render() {
 	    gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
 	    gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 	    
-	    gl.drawArrays(gl.TRIANGLES, 0, cubePoints);
+        // gl.drawArrays(gl.TRIANGLE_FAN, 0, burgerPoints);
+        // gl.drawArrays(gl.TRIANGLE_FAN, 0, topBunPoints);
+        gl.drawArrays(gl.TRIANGLES, topBunPoints, lettucePoints);
+        gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints, tomatoPoints);
+        gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints, cheesePoints);
+        gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints+cheesePoints, pattyPoints);
+        gl.drawArrays(gl.TRIANGLES, topBunPoints+lettucePoints+tomatoPoints+cheesePoints+pattyPoints,burgerPoints);
 	}
     }
     
