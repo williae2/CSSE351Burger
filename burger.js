@@ -8,13 +8,16 @@ var colors = [];
 var normals = [];
 var texcoords = [];
 
-var burgerPoints = 0;
 var wallPoints = 6;
+var burgerPoints = 0;
 var topBunPoints = 0;
 var lettucePoints = 0;
 var tomatoPoints = 0;
 var cheesePoints = 0;
 var pattyPoints = 0;
+var bottomBunPoints = 0;
+var program; 
+
 var xAxis = 0;
 var yAxis = 1;
 var zAxis = 2;
@@ -23,10 +26,10 @@ var cheese = true;
 var tomato = true;
 var patty = true;
 var lettuce = true;
-var numPtsCirc = 500;
+var numPtsCirc = 2000;
 var axis = 1;
 var theta = [0, 0, 0];
-
+var currentHeight = 0;
 var radius = 3;
 var phi = Math.PI/2;
 var trans = [radius*Math.cos(phi), 0, radius*Math.sin(phi)];
@@ -74,17 +77,17 @@ var texture;
 
 var texSize = 64;
 
-function quad(a, b, c, d, color, y1, y2)
+function quad(a, b, c, d, color, y1, y2, l)
 {
     var vertices = [
-        vec4(-0.5, y1,  0.5, 1.0),
-        vec4(-0.5,  y2,  0.5, 1.0),
-        vec4( 0.5,  y2,  0.5, 1.0),
-        vec4( 0.5, y1,  0.5, 1.0),
-        vec4(-0.5, y1, -0.5, 1.0),
-        vec4(-0.5,  y2, -0.5, 1.0),
-        vec4( 0.5,  y2, -0.5, 1.0),
-        vec4( 0.5, y1, -0.5, 1.0)
+        vec4(-l/2, y1,  l/2, 1.0),
+        vec4(-l/2,  y2,  l/2, 1.0),
+        vec4( l/2,  y2,  l/2, 1.0),
+        vec4( l/2, y1,  l/2, 1.0),
+        vec4(-l/2, y1, -l/2, 1.0),
+        vec4(-l/2,  y2, -l/2, 1.0),
+        vec4( l/2,  y2, -l/2, 1.0),
+        vec4( l/2, y1, -l/2, 1.0)
     ];
 
     var vertexColors = [
@@ -119,17 +122,6 @@ function quad(a, b, c, d, color, y1, y2)
     }
 }
 
-function color_cube()
-{
-    quad(1, 0, 3, 2, 3);
-    quad(2, 3, 7, 6, 3);
-    quad(3, 0, 4, 7, 3);
-    quad(6, 5, 1, 2, 3);
-    quad(4, 5, 6, 7, 3);
-    quad(5, 4, 0, 1, 3);
-    
-}
-
 function drawCyl(startX,startY,height,offset,radius,color) {
     const angle = 2 * Math.PI / numPtsCirc;
 
@@ -140,6 +132,9 @@ function drawCyl(startX,startY,height,offset,radius,color) {
         var x = startX + radius * Math.cos(inc);
         var y = startY + radius * Math.sin(inc);
         colors.push(color);
+        var n = vec4(0,1,0);
+	    normals.push(n);
+        texcoords.push(vec2(x, height-offset));
         // var n = normalize(cross(subtract(vertices[b], vertices[a]),
 		// 		subtract(vertices[c], vertices[a])));
 	    // normals.push(n);
@@ -151,6 +146,9 @@ function drawCyl(startX,startY,height,offset,radius,color) {
         var x = startX + radius * Math.cos(inc);
         var y = startY + radius * Math.sin(inc);
         colors.push(color);
+        var n = vec4(0,-1,0);
+	    normals.push(n);
+        texcoords.push(vec2(x, height));
         points.push(vec4(x, height,y, 1.0));
     }
 
@@ -164,60 +162,82 @@ function drawCyl(startX,startY,height,offset,radius,color) {
         var n = normalize(vec4(x-startX,y-startY,0));
 	    normals.push(n);
         normals.push(n);
+        texcoords.push(vec2(x, height-offset));
+        texcoords.push(vec2(x, height));
         points.push(vec4(x, height-offset, y, 1.0));
         points.push(vec4(x, height, y, 1.0));
     }
 }
 function build_top_bun() {
-    // TODO finish this method
+    // This is a substitute for a hemisphere
+    // Hemispheres are rediculously hard to draw
+    drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(1,1,0,1))
+    topBunPoints += 6*numPtsCirc;
+    burgerPoints += 6*numPtsCirc;
 }
 
 function build_lettuce() {
-    quad(1, 0, 3, 2, 3,0.125,0.1875);
-    quad(2, 3, 7, 6, 3,0.125,0.1875);
-    quad(3, 0, 4, 7, 3,0.125,0.1875);
-    quad(6, 5, 1, 2, 3,0.125,0.1875);
-    quad(4, 5, 6, 7, 3,0.125,0.1875);
-    quad(5, 4, 0, 1, 3,0.125,0.1875);
-    lettucePoints+=36;
-    burgerPoints+=36;
+    if(lettuce) {
+        quad(1, 0, 3, 2, 3,currentHeight,currentHeight+0.0625,1.25);
+        quad(2, 3, 7, 6, 3,currentHeight,currentHeight+0.0625,1.25);
+        quad(3, 0, 4, 7, 3,currentHeight,currentHeight+0.0625,1.25);
+        quad(6, 5, 1, 2, 3,currentHeight,currentHeight+0.0625,1.25);
+        quad(4, 5, 6, 7, 3,currentHeight,currentHeight+0.0625,1.25);
+        quad(5, 4, 0, 1, 3,currentHeight,currentHeight+0.0625,1.25);
+        currentHeight += 0.0625;
+        lettucePoints+=36;
+        burgerPoints+=36;
+    }
 }
 
 function build_cheese() {
-    //TODO Fix
-    quad(1, 0, 3, 2, 2,0.125,0.1875);
-    quad(2, 3, 7, 6, 2,0.125,0.1875);
-    quad(3, 0, 4, 7, 2,0.125,0.1875);
-    quad(6, 5, 1, 2, 2,0.125,0.1875);
-    quad(4, 5, 6, 7, 2,0.125,0.1875);
-    quad(5, 4, 0, 1, 2,0.125,0.1875);
-    cheesePoints+=36;
-    burgerPoints+=36;
+    if(cheese) {
+        quad(1, 0, 3, 2, 2,currentHeight,currentHeight+0.0625,1.1);
+        quad(2, 3, 7, 6, 2,currentHeight,currentHeight+0.0625,1.1);
+        quad(3, 0, 4, 7, 2,currentHeight,currentHeight+0.0625,1.1);
+        quad(6, 5, 1, 2, 2,currentHeight,currentHeight+0.0625,1.1);
+        quad(4, 5, 6, 7, 2,currentHeight,currentHeight+0.0625,1.1);
+        quad(5, 4, 0, 1, 2,currentHeight,currentHeight+0.0625,1.1);
+        currentHeight += 0.0625;
+        cheesePoints+=36;
+        burgerPoints+=36;
+    } 
 }
 function build_tomato() {
-    drawCyl(0,0,0,-0.125,0.65,vec4(0.9,0,0,1))
-    tomatoPoints += 6*numPtsCirc;
-    burgerPoints += 6*numPtsCirc;
+    if(tomato) {
+        drawCyl(0,0,currentHeight,-0.125,0.65,vec4(0.9,0,0,1));
+        currentHeight += 0.125;
+        tomatoPoints += 6*numPtsCirc;
+        burgerPoints += 6*numPtsCirc;
+    } 
 }
 
 function build_patty(){
-    drawCyl(0,0,-.25,-0.25,0.75,vec4(0.9,0.35,0.05,1))
-    pattyPoints += 6*numPtsCirc;
-    burgerPoints += 6*numPtsCirc;
+    if(patty) {
+        drawCyl(0,0,currentHeight,-0.25,0.75,vec4(0.9,0.35,0.05,1));
+        currentHeight += 0.25;
+        pattyPoints += 6*numPtsCirc;
+        burgerPoints += 6*numPtsCirc;
+    } 
 }
 
 function build_bottom_bun() {
-    drawCyl(0,0,-0.5,-0.25,0.75,vec4(1,1,0,1))
+    drawCyl(0,0,currentHeight,-0.25,0.75,vec4(1,1,0,1));
+    currentHeight += 0.25;
+    bottomBunPoints += 6*numPtsCirc;
     burgerPoints += 6*numPtsCirc;
 }
 function build_burger() {
-    build_top_bun();
-    build_lettuce();
-    // build_cheese();
-    build_tomato();
-    build_patty();
+    currentHeight = -0.5;
     build_bottom_bun();
+    build_patty();
+    build_tomato();
+    build_cheese();
+    build_lettuce();
+    build_top_bun();
+    console.log(points)
 }
+
 function wall()
 {
     var vertices = [
@@ -249,6 +269,24 @@ function wall()
     }
 }
 
+function resetBurger() {
+    points = [];
+    normals = [];
+    colors = [];
+    texcoords = [];
+
+    wallPoints = 6;
+    burgerPoints = 0;
+    topBunPoints = 0;
+    lettucePoints = 0;
+    tomatoPoints = 0;
+    cheesePoints = 0;
+    pattyPoints = 0;
+    bottomBunPoints = 0;
+    build_burger();
+    wall();
+
+}
 window.onload = function init()
 {
     canvas = document.getElementById( "gl-canvas" );
@@ -265,40 +303,8 @@ window.onload = function init()
     gl.enable(gl.DEPTH_TEST);
     // gl.enable(gl.CULL_FACE);
 
-    var program = initShaders(gl, "vertex-shader", "fragment-shader");
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
-
-    var tBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(texcoords), gl.STATIC_DRAW);
-
-    var texCoordLoc = gl.getAttribLocation(program, "aTexCoord");
-    gl.vertexAttribPointer(texCoordLoc, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(texCoordLoc);
-
-    var nBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW);
-
-    var normalLoc = gl.getAttribLocation(program, "aNormal");
-    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(normalLoc);
-
-    var cBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
-
-    var colorLoc = gl.getAttribLocation(program, "aColor");
-    gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(colorLoc);
-
-    var vBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
-
-    var positionLoc = gl.getAttribLocation(program, "aPosition");
-    gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(positionLoc);
 
     ModelViewMatrixLoc = gl.getUniformLocation(program, "uModelViewMatrix");
     gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
@@ -378,7 +384,8 @@ window.onload = function init()
     }
 
     pattyCheckbox.onchange = function(event) {
-	    render();
+        patty = !patty;
+	    resetBurger();
     };
 
     var cheeseCheckbox = document.getElementById("cheeseB");
@@ -389,7 +396,8 @@ window.onload = function init()
     }
 
     cheeseCheckbox.onchange = function(event) {
-	    render();
+        cheese = !cheese;
+        resetBurger();
     };
 
     var lettuceCheckbox = document.getElementById("lettuceB");
@@ -400,7 +408,8 @@ window.onload = function init()
     }
 
     lettuceCheckbox.onchange = function(event) {
-	    render();
+        lettuce = !lettuce;
+	    resetBurger();
     };
 
     var tomatoCheckbox = document.getElementById("tomatoB");
@@ -411,7 +420,8 @@ window.onload = function init()
     }
 
     tomatoCheckbox.onchange = function(event) {
-	    render();
+        tomato = !tomato;
+	    resetBurger();
     };
 
     var altViewCheckbox = document.getElementById("altViewOn");
@@ -546,13 +556,16 @@ function render() {
     gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
     gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 
-    gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
-    // gl.drawArrays(gl.TRIANGLES, topBunPoints, lettucePoints);
-    // gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints, tomatoPoints);
-    // gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints, cheesePoints);
-    // gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints+cheesePoints, pattyPoints);
-    // gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints+cheesePoints+pattyPoints,burgerPoints);
-    // Draw scene
+    // gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
+    
+    gl.drawArrays(gl.TRIANGLE_FAN, 0,bottomBunPoints);
+    gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints, pattyPoints);
+    gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints, tomatoPoints);
+    gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
+    gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
+    gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
+
+	// Draw scene
     if (!altView) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -588,18 +601,50 @@ function render() {
 	    gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 	    
         // gl.drawArrays(gl.TRIANGLE_FAN, 0, burgerPoints);
-        // gl.drawArrays(gl.TRIANGLE_FAN, 0, topBunPoints);
-        gl.drawArrays(gl.TRIANGLES, topBunPoints, lettucePoints);
-        gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints, tomatoPoints);
-        gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints, cheesePoints);
-        gl.drawArrays(gl.TRIANGLE_FAN, topBunPoints+lettucePoints+tomatoPoints+cheesePoints, pattyPoints);
-        gl.drawArrays(gl.TRIANGLES, topBunPoints+lettucePoints+tomatoPoints+cheesePoints+pattyPoints,burgerPoints);
+        gl.drawArrays(gl.TRIANGLE_FAN, 0,bottomBunPoints);
+        gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints, pattyPoints);
+        gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints, tomatoPoints);
+        gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
+        gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
+        gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
 	}
     }
     
     theta[axis] += 1.0;
     phi += 0.01;
     trans = [radius*Math.cos(phi), 0, radius*Math.sin(phi)];
+
+    var tBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(texcoords), gl.STATIC_DRAW);
+
+    var texCoordLoc = gl.getAttribLocation(program, "aTexCoord");
+    gl.vertexAttribPointer(texCoordLoc, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(texCoordLoc);
+
+    var nBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW);
+
+    var normalLoc = gl.getAttribLocation(program, "aNormal");
+    gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(normalLoc);
+
+    var cBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
+
+    var colorLoc = gl.getAttribLocation(program, "aColor");
+    gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(colorLoc);
+
+    var vBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+
+    var positionLoc = gl.getAttribLocation(program, "aPosition");
+    gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(positionLoc);
 
     requestAnimationFrame(render);
 }
