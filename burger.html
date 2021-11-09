@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-    <title>Rotating Cube with Lighting and a Wall Behind</title>
 
-    <script id="vertex-shader" type="x-shader/x-vertex">
-#version 300 es
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <title>Mothman Burger</title>
+
+  <script id="vertex-shader" type="x-shader/x-vertex">
+    #version 300 es
 
 in  vec4 aPosition;
 in  vec4 aColor;
@@ -32,8 +33,8 @@ main()
   vTexCoord = aTexCoord;
 }
     </script>
-    <script id="fragment-shader" type="x-shader/x-fragment">
-#version 300 es
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    #version 300 es
 
 precision mediump float;
 
@@ -93,36 +94,37 @@ main()
 }
     </script>
 
-    <script type="text/javascript" src="Common/initShaders.js"></script>
-    <script type="text/javascript" src="Common/MVnew.js"></script>
-    <script type="text/javascript" src="burger.js"></script>
-  </head>
+  <script type="text/javascript" src="Common/initShaders.js"></script>
+  <script type="text/javascript" src="Common/MVnew.js"></script>
+  <script type="text/javascript" src="burger.js"></script>
+</head>
 
-  <body>
-    <canvas id="gl-canvas" width="512" height="512"> </canvas>
-    <br/>
-    <div>
-      <input type="checkbox" id="pattyB" name="ambientOn" checked>
-      <label for="ambientOn">Patty</label>
-      &ensp;
-      <input type="checkbox" id="cheeseB" name="diffuseOn" checked>
-      <label for="diffuseOn">Cheese</label>
-      &ensp;
-      <input type="checkbox" id="lettuceB" name="specularOn" checked>
-      <label for="specularOn">Lettuce</label>
-      &ensp;
-      <input type="checkbox" id="tomatoB" name="textureOn" checked>
-      <label for="textureOn">Tomato</label>
-    </div>
-    <div>
-      <input type="checkbox" id="altViewOn" name="altViewOn">
-      <label for="altViewOn">Alternate Viewpoint On</label>
-      &ensp;
-      <input type="checkbox" id="altViewTextureViewOn" name="altViewTextureViewOn">
-      <label for="altViewTextureViewOn">Alternate View Texture View</label>
-      &ensp;
-      <input type="checkbox" id="objOn" name="objOn" checked>
-      <label for="objOn">Object On</label>
-    </div>
-  </body>
+<body>
+  <canvas id="gl-canvas" width="1024" height="1024"> </canvas>
+  <br />
+  <div>
+    <input type="checkbox" id="pattyB" name="ambientOn" checked>
+    <label for="ambientOn">Patty</label>
+    &ensp;
+    <input type="checkbox" id="cheeseB" name="diffuseOn" checked>
+    <label for="diffuseOn">Cheese</label>
+    &ensp;
+    <input type="checkbox" id="lettuceB" name="specularOn" checked>
+    <label for="specularOn">Lettuce</label>
+    &ensp;
+    <input type="checkbox" id="tomatoB" name="textureOn" checked>
+    <label for="textureOn">Tomato</label>
+  </div>
+  <div>
+    <input type="checkbox" id="altViewOn" name="altViewOn">
+    <label for="altViewOn">Alternate Viewpoint On</label>
+    &ensp;
+    <input type="checkbox" id="altViewTextureViewOn" name="altViewTextureViewOn">
+    <label for="altViewTextureViewOn">Alternate View Texture View</label>
+    &ensp;
+    <input type="checkbox" id="objOn" name="objOn" checked>
+    <label for="objOn">Object On</label>
+  </div>
+</body>
+
 </html>

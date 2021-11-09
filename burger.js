@@ -26,6 +26,7 @@ var cheese = true;
 var tomato = true;
 var patty = true;
 var lettuce = true;
+
 var numPtsCirc = 2000;
 var axis = 1;
 var theta = [0, 0, 0];
@@ -50,12 +51,12 @@ var Projection1 = perspective(90, 1, 1, 40);
 var Projection2 = frustum(-5, 5, -2.5, 2.5, 10, 40);
 
 //var AmbientLight = vec3(1.0, 1.0, 1.0);
-var AmbientLight = vec3(.4, .4, .4);
-var LightColor1 = vec3(1.0, 0.0, 0.0);
+var AmbientLight = vec3(.3, .3, .3);
+var LightColor1 = vec3(2.0, 0.0, 0.0);
 var LightPosition1 = vec4(1.0, 1.0, 5.0, 1.0); // in world coordinates
 var LightPosition2 = vec4(-1.0, 1.0, 5.0, 1.0);
-var LightColor2 = vec3(1.0, 0.0, 0.0);
-var Shininess = 500;
+var LightColor2 = vec3(2.0, 0.0, 0.0);
+var Shininess = 300;
 
 var ModelViewMatrixLoc;
 var NormalMatrixLoc;
@@ -132,7 +133,7 @@ function drawCyl(startX,startY,height,offset,radius,color) {
         var x = startX + radius * Math.cos(inc);
         var y = startY + radius * Math.sin(inc);
         colors.push(color);
-        var n = vec4(0,1,0);
+        var n = vec3(0,1,0);
 	    normals.push(n);
         texcoords.push(vec2(x, height-offset));
         // var n = normalize(cross(subtract(vertices[b], vertices[a]),
@@ -146,7 +147,7 @@ function drawCyl(startX,startY,height,offset,radius,color) {
         var x = startX + radius * Math.cos(inc);
         var y = startY + radius * Math.sin(inc);
         colors.push(color);
-        var n = vec4(0,-1,0);
+        var n = vec3(0,-1,0);
 	    normals.push(n);
         texcoords.push(vec2(x, height));
         points.push(vec4(x, height,y, 1.0));
@@ -159,7 +160,7 @@ function drawCyl(startX,startY,height,offset,radius,color) {
         var y = startY + radius * Math.sin(inc);
         colors.push(color);
         colors.push(color);
-        var n = normalize(vec4(x-startX,y-startY,0));
+        var n = normalize(vec3(x-startX,y-startY,1));
 	    normals.push(n);
         normals.push(n);
         texcoords.push(vec2(x, height-offset));
@@ -171,9 +172,10 @@ function drawCyl(startX,startY,height,offset,radius,color) {
 function build_top_bun() {
     // This is a substitute for a hemisphere
     // Hemispheres are rediculously hard to draw
-    drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(1,1,0,1))
+    drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(.9569,.6431,.3765,1))
     topBunPoints += 6*numPtsCirc;
     burgerPoints += 6*numPtsCirc;
+    console.log("top: " + topBunPoints + " burger now: "+ burgerPoints);
 }
 
 function build_lettuce() {
@@ -188,6 +190,7 @@ function build_lettuce() {
         lettucePoints+=36;
         burgerPoints+=36;
     }
+    console.log("lettuce: " + lettucePoints + " burger now: "+ burgerPoints);
 }
 
 function build_cheese() {
@@ -202,14 +205,17 @@ function build_cheese() {
         cheesePoints+=36;
         burgerPoints+=36;
     } 
+    console.log("cheese: " + cheesePoints + " burger now: "+ burgerPoints);
 }
 function build_tomato() {
+    console.log(tomato)
     if(tomato) {
         drawCyl(0,0,currentHeight,-0.125,0.65,vec4(0.9,0,0,1));
         currentHeight += 0.125;
         tomatoPoints += 6*numPtsCirc;
         burgerPoints += 6*numPtsCirc;
     } 
+    console.log("tomato: " + tomatoPoints + " burger now: "+ burgerPoints)
 }
 
 function build_patty(){
@@ -219,13 +225,15 @@ function build_patty(){
         pattyPoints += 6*numPtsCirc;
         burgerPoints += 6*numPtsCirc;
     } 
+    console.log("patty: " + pattyPoints + " burger now: "+ burgerPoints);
 }
 
 function build_bottom_bun() {
-    drawCyl(0,0,currentHeight,-0.25,0.75,vec4(1,1,0,1));
+    drawCyl(0,0,currentHeight,-0.25,0.75,vec4(.9569,.6431,.3765,1));
     currentHeight += 0.25;
     bottomBunPoints += 6*numPtsCirc;
     burgerPoints += 6*numPtsCirc;
+    console.log("bottom: " + bottomBunPoints + " burger now: "+ burgerPoints);
 }
 function build_burger() {
     currentHeight = -0.5;
@@ -235,7 +243,7 @@ function build_burger() {
     build_cheese();
     build_lettuce();
     build_top_bun();
-    console.log(points)
+    
 }
 
 function wall()
@@ -267,6 +275,7 @@ function wall()
 	normals.push(normal);
 	texcoords.push(texCoord[tindices[i]]);
     }
+    // console.log(points)
 }
 
 function resetBurger() {
@@ -285,6 +294,7 @@ function resetBurger() {
     bottomBunPoints = 0;
     build_burger();
     wall();
+    console.log("points in Normals = " + normals[normals.length-1] + " and total points in vertex is " + points.length);
 
 }
 window.onload = function init()
@@ -294,8 +304,7 @@ window.onload = function init()
     gl = canvas.getContext('webgl2');
     if (!gl) { alert("WebGL 2.0 isn't available"); }
 
-    build_burger();
-    wall();
+    
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.5, 0.5, 0.5, 1.0);
@@ -377,14 +386,19 @@ window.onload = function init()
 
 
     var pattyCheckbox = document.getElementById("pattyB");
+    
     if (pattyCheckbox.checked) {
         patty = true;
     } else {
         patty = false;
     }
-
     pattyCheckbox.onchange = function(event) {
-        patty = !patty;
+        // patty = !patty;
+        if (pattyCheckbox.checked) {
+            patty = true;
+        } else {
+            patty = false;
+        }
 	    resetBurger();
     };
 
@@ -396,7 +410,12 @@ window.onload = function init()
     }
 
     cheeseCheckbox.onchange = function(event) {
-        cheese = !cheese;
+        // cheese = !cheese;
+        if (cheeseCheckbox.checked) {
+            cheese = true;
+        } else {
+            cheese = false;
+        }
         resetBurger();
     };
 
@@ -408,19 +427,32 @@ window.onload = function init()
     }
 
     lettuceCheckbox.onchange = function(event) {
-        lettuce = !lettuce;
+        // lettuce = !lettuce;
+        if (lettuceCheckbox.checked) {
+            lettuce = true;
+        } else {
+            lettuce = false;
+        }
 	    resetBurger();
     };
 
     var tomatoCheckbox = document.getElementById("tomatoB");
     if (tomatoCheckbox.checked) {
+        console.log("tomato true");
         tomato = true;
     } else {
+        console.log("tomato false");
         tomato = false;
     }
-
     tomatoCheckbox.onchange = function(event) {
-        tomato = !tomato;
+        // tomato = !tomato;
+        if (tomatoCheckbox.checked) {
+            console.log("tomato true");
+            tomato = true;
+        } else {
+            console.log("tomato false");
+            tomato = false;
+        }
 	    resetBurger();
     };
 
@@ -468,6 +500,9 @@ window.onload = function init()
 	    obj = false;
 	}
     };
+
+    build_burger();
+    wall();
 
     render();
 };
@@ -546,6 +581,7 @@ function render() {
 	gl.drawArrays(gl.LINE_LOOP, burgerPoints, wallPoints);
     }
 
+    console.log(burgerPoints);
     ModelView = mult(ModelView,
     		     mult(translate(trans[0], trans[1], trans[2]),
     			  mult(rotateZ(theta[2]),
