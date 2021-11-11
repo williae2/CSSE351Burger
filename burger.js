@@ -18,6 +18,8 @@ var pattyPoints = 0;
 var bottomBunPoints = 0;
 var program; 
 
+let bunColorVec = vec4(0.957, 0.643, 0.377, 1.000);
+
 var xAxis = 0;
 var yAxis = 1;
 var zAxis = 2;
@@ -27,7 +29,7 @@ var tomato = true;
 var patty = true;
 var lettuce = true;
 
-var numPtsCirc = 2000;
+var numPtsCirc = 50;
 var axis = 1;
 var theta = [0, 0, 0];
 var currentHeight = 0;
@@ -172,10 +174,71 @@ function drawCyl(startX,startY,height,offset,radius,color) {
 function build_top_bun() {
     // This is a substitute for a hemisphere
     // Hemispheres are rediculously hard to draw
-    drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(.9569,.6431,.3765,1))
+    drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(.9569,.6431,.3765,1));
+    // startX,startY,height,offset,radius,color
+    draw_hemisphere_layer(0, 12, 30, 0, 0, currentHeight, 0.75, 0.75, bunColorVec);
     topBunPoints += 6*numPtsCirc;
     burgerPoints += 6*numPtsCirc;
     console.log("top: " + topBunPoints + " burger now: "+ burgerPoints);
+}
+
+function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, height, color) {
+    // Get bottom horizontal band height
+    const bottomRowZ = bottomZ + (height * Math.sin(Math.PI/2 * currentLayer/totalLayers));
+    // Get bottom horizontal band radius
+    const bottomRowRad = Math.sqrt((radius*radius)-((bottomRowZ-bottomZ)*(bottomRowZ-bottomZ)));
+    // Get top horizontal band height
+    const topRowZ = bottomZ + (height * Math.sin(Math.PI/2 * (currentLayer+1)/totalLayers));
+    // Get top horizontal band radius
+    const topRowRad = Math.sqrt((radius*radius)-((topRowZ-bottomZ)*(topRowZ-bottomZ)));
+    // Logging stuff to console for testing
+    // console.log(`Current Layer: ${currentLayer}`);
+    // console.log(`Bottom Z: ${bottomZ}`);
+    // console.log(`Sphere Radius: ${radius}`);
+    // console.log(`Bottom Row Z: ${bottomRowZ}`);
+    // console.log(`Bottom Row Rad: ${bottomRowRad}`);
+    // console.log(`Top Row Z: ${topRowZ}`);
+    // console.log(`Top Row Rad: ${topRowRad}`);
+    // Generate all rectangles around band
+    for (let i=0; i<numRadialPoints-1; i++) {
+        // Calculate the coordinates of the quadrilateral to be shaded
+        const bottomLeft = vec4(
+            (centerX + (radius * Math.sin(2*Math.PI*i/numRadialPoints))),
+            (centerY + (radius * Math.cos(2*Math.PI*i/numRadialPoints))),
+            bottomRowZ,
+            1.00);
+        const bottomRight = vec4(
+            (centerX + (radius * Math.sin(2*Math.PI*(i+1)/numRadialPoints))),
+            (centerY + (radius * Math.cos(2*Math.PI*(i+1)/numRadialPoints))),
+            bottomRowZ,
+            1.00);
+        const topLeft = vec4(
+            (centerX + (radius * Math.sin(2*Math.PI*i/numRadialPoints))),
+            (centerY + (radius * Math.cos(2*Math.PI*i/numRadialPoints))),
+            topRowZ,
+            1.00);
+        const topRight = vec4(
+            (centerX + (radius * Math.sin(2*Math.PI*(i+1)/numRadialPoints))),
+            (centerY + (radius * Math.cos(2*Math.PI*(i+1)/numRadialPoints))),
+            topRowZ,
+            1.00);
+        // Calculate normal vector to the quadrilateral
+        const normal = normalize(cross(subtract(bottomLeft, bottomRight),
+                                    subtract(topLeft, bottomLeft)));
+        // Push the points to the points array
+        // points.push(bottomLeft);
+        // points.push(bottomRight);
+        // points.push(topRight);
+        // points.push(bottomLeft);
+        // points.push(topLeft);
+        // points.push(topRight);
+        // // Push the color to the colors array
+        // // Push the normal vector to the normals array
+        // for (let k=0; k<6; k++) {
+        //     colors.push(color);
+        //     normals.push(normal);
+        // }
+    }
 }
 
 function build_lettuce() {
@@ -243,7 +306,6 @@ function build_burger() {
     build_cheese();
     build_lettuce();
     build_top_bun();
-    
 }
 
 function wall()
