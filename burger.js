@@ -174,23 +174,42 @@ function drawCyl(startX,startY,height,offset,radius,color) {
 function build_top_bun() {
     // This is a substitute for a hemisphere
     // Hemispheres are rediculously hard to draw
-    drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(.9569,.6431,.3765,1));
+    // drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(.9569,.6431,.3765,1));
     // startX,startY,height,offset,radius,color
-    draw_hemisphere_layer(0, 12, 30, 0, 0, currentHeight, 0.75, 0.75, bunColorVec);
-    topBunPoints += 6*numPtsCirc;
-    burgerPoints += 6*numPtsCirc;
+    draw_hemisphere(12, 30, 0, 0, currentHeight, 0.75, 0.75, bunColorVec);
+    // topBunPoints += 6*numPtsCirc;
+    // burgerPoints += 6*numPtsCirc;
+    const hemispherePoints = calc_hemisphere_points(12, 30);
+    topBunPoints += hemispherePoints;
+    burgerPoints += hemispherePoints;
     console.log("top: " + topBunPoints + " burger now: "+ burgerPoints);
 }
 
-function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, height, color) {
+// TODO: add an option to "squish" the height of the hemisphere
+function draw_hemisphere(totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color) {
+    console.log("Drawing hemisphere");
+    for (let band=0; band<totalLayers-2; band++) {
+        console.log("Drawing band ", band);
+        draw_hemisphere_layer(band, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color);
+    }
+    console.log("Drawing cap");
+    draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color);
+}
+
+function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color) {
+
     // Get bottom horizontal band height
-    const bottomRowZ = bottomZ + (height * Math.sin(Math.PI/2 * currentLayer/totalLayers));
+    const bottomRowZ = bottomZ + (radius * Math.sin(Math.PI/2 * currentLayer/totalLayers));
+
     // Get bottom horizontal band radius
     const bottomRowRad = Math.sqrt((radius*radius)-((bottomRowZ-bottomZ)*(bottomRowZ-bottomZ)));
+
     // Get top horizontal band height
-    const topRowZ = bottomZ + (height * Math.sin(Math.PI/2 * (currentLayer+1)/totalLayers));
+    const topRowZ = bottomZ + (radius * Math.sin(Math.PI/2 * (currentLayer+1)/totalLayers));
+
     // Get top horizontal band radius
     const topRowRad = Math.sqrt((radius*radius)-((topRowZ-bottomZ)*(topRowZ-bottomZ)));
+
     // Logging stuff to console for testing
     // console.log(`Current Layer: ${currentLayer}`);
     // console.log(`Bottom Z: ${bottomZ}`);
@@ -199,8 +218,10 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
     // console.log(`Bottom Row Rad: ${bottomRowRad}`);
     // console.log(`Top Row Z: ${topRowZ}`);
     // console.log(`Top Row Rad: ${topRowRad}`);
+
     // Generate all rectangles around band
-    for (let i=0; i<numRadialPoints-1; i++) {
+    for (let i=0; i<numRadialPoints; i++) {
+
         // Calculate the coordinates of the quadrilateral to be shaded
         const bottomLeft = vec4(
             (centerX + (radius * Math.sin(2*Math.PI*i/numRadialPoints))),
@@ -208,8 +229,8 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
             bottomRowZ,
             1.00);
         const bottomRight = vec4(
-            (centerX + (radius * Math.sin(2*Math.PI*(i+1)/numRadialPoints))),
-            (centerY + (radius * Math.cos(2*Math.PI*(i+1)/numRadialPoints))),
+            (centerX + (radius * Math.sin(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
+            (centerY + (radius * Math.cos(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
             bottomRowZ,
             1.00);
         const topLeft = vec4(
@@ -218,26 +239,74 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
             topRowZ,
             1.00);
         const topRight = vec4(
-            (centerX + (radius * Math.sin(2*Math.PI*(i+1)/numRadialPoints))),
-            (centerY + (radius * Math.cos(2*Math.PI*(i+1)/numRadialPoints))),
+            (centerX + (radius * Math.sin(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
+            (centerY + (radius * Math.cos(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
             topRowZ,
             1.00);
+
         // Calculate normal vector to the quadrilateral
         const normal = normalize(cross(subtract(bottomLeft, bottomRight),
                                     subtract(topLeft, bottomLeft)));
+
         // Push the points to the points array
-        // points.push(bottomLeft);
-        // points.push(bottomRight);
-        // points.push(topRight);
-        // points.push(bottomLeft);
-        // points.push(topLeft);
-        // points.push(topRight);
-        // // Push the color to the colors array
-        // // Push the normal vector to the normals array
-        // for (let k=0; k<6; k++) {
-        //     colors.push(color);
-        //     normals.push(normal);
-        // }
+        points.push(bottomLeft);
+        points.push(bottomRight);
+        points.push(topRight);
+        points.push(bottomLeft);
+        points.push(topLeft);
+        points.push(topRight);
+
+        // Push the color to the colors array
+        // Push the normal vector to the normals array
+        for (let k=0; k<6; k++) {
+            colors.push(color);
+            normals.push(normal);
+        }
+
+    }
+
+    
+}
+
+function calc_hemisphere_points(totalLayers, numRadialPoints) {
+    return (6*numRadialPoints*(totalLayers-2)) + (3*numRadialPoints);
+}
+
+function draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color) {
+
+    // Get horizontal band height
+    const bandZ = bottomZ + (radius * Math.sin(Math.PI/2 * (totalLayers-1)/totalLayers));
+
+    // Get top of hemisphere
+    const topPoint = vec4(centerX, centerY, bottomZ+radius, 1.00);
+
+    // Generate the cap to the hemisphere
+    for (let i=0; i<numRadialPoints; i++) {
+        const bottomLeft = vec4(
+            (centerX + (radius * Math.sin(2*Math.PI*(numRadialPoints-1)/numRadialPoints))),
+            (centerY + (radius * Math.cos(2*Math.PI*(numRadialPoints-1)/numRadialPoints))),
+            bandZ,
+            1.00);
+        const bottomRight = vec4(
+            (centerX + (radius * Math.sin(2*Math.PI*0/numRadialPoints))),
+            (centerY + (radius * Math.cos(2*Math.PI*0/numRadialPoints))),
+            bandZ,
+            1.00);
+        // Calculate normal vector to the quadrilateral
+        const normal = normalize(cross(subtract(bottomLeft, bottomRight),
+                                    subtract(bottomLeft, topPoint)));
+            
+        // Push all points to the points vector
+        points.push(bottomLeft);
+        points.push(bottomRight);
+        points.push(topPoint);
+
+        // Push color to colors vector
+        // Push normal to normals vector
+        for (let k=0; k<3; k++) {
+            colors.push(color);
+            normals.push(normal);
+        }
     }
 }
 
@@ -270,6 +339,7 @@ function build_cheese() {
     } 
     console.log("cheese: " + cheesePoints + " burger now: "+ burgerPoints);
 }
+
 function build_tomato() {
     console.log(tomato)
     if(tomato) {
@@ -281,7 +351,7 @@ function build_tomato() {
     console.log("tomato: " + tomatoPoints + " burger now: "+ burgerPoints)
 }
 
-function build_patty(){
+function build_patty() {
     if(patty) {
         drawCyl(0,0,currentHeight,-0.25,0.75,vec4(0.9,0.35,0.05,1));
         currentHeight += 0.25;
@@ -298,6 +368,7 @@ function build_bottom_bun() {
     burgerPoints += 6*numPtsCirc;
     console.log("bottom: " + bottomBunPoints + " burger now: "+ burgerPoints);
 }
+
 function build_burger() {
     currentHeight = -0.5;
     build_bottom_bun();
@@ -359,6 +430,7 @@ function resetBurger() {
     console.log("points in Normals = " + normals[normals.length-1] + " and total points in vertex is " + points.length);
 
 }
+
 window.onload = function init()
 {
     canvas = document.getElementById( "gl-canvas" );
@@ -569,6 +641,7 @@ window.onload = function init()
     render();
 };
 
+// frustum? i hardley knew em
 function frustum(left, right, bottom, top, near, far)
 {
     if (left >= right) { throw "frustum(): left and right not acceptable"; }
@@ -704,7 +777,7 @@ function render() {
         gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints, tomatoPoints);
         gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
         gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
-        gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
+        gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
 	}
     }
     
