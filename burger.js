@@ -594,52 +594,6 @@ window.onload = function init()
         }
 	    resetBurger();
     };
-
-    var altViewCheckbox = document.getElementById("altViewOn");
-    if (altViewCheckbox.checked) {
-	altView = true;
-    } else {
-	altView = false;
-    }
-
-    altViewCheckbox.onchange = function(event) {
-	if (altViewCheckbox.checked) {
-	    altView = true;
-	} else {
-	    altView = false;
-	}
-    };
-
-    var altViewTextureViewCheckbox = document.getElementById("altViewTextureViewOn");
-    if (altViewTextureViewCheckbox.checked) {
-	textureView = true;
-    } else {
-	textureView = false;
-    }
-
-    altViewTextureViewCheckbox.onchange = function(event) {
-	if (altViewTextureViewCheckbox.checked) {
-	    textureView = true;
-	} else {
-	    textureView = false;
-	}
-    };
-
-    var objCheckbox = document.getElementById("objOn");
-    if (objCheckbox.checked) {
-	obj = true;
-    } else {
-	obj = false;
-    }
-
-    objCheckbox.onchange = function(event) {
-	if (objCheckbox.checked) {
-	    obj = true;
-	} else {
-	    obj = false;
-	}
-    };
-
     build_burger();
     wall();
 
