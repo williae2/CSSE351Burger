@@ -192,8 +192,8 @@ function draw_hemisphere(totalLayers, numRadialPoints, centerX, centerY, bottomZ
         console.log("Drawing band ", band);
         draw_hemisphere_layer(band, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color);
     }
-    console.log("Drawing cap");
-    draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color);
+//    console.log("Drawing cap"); TODO you cant tell the difference lmao
+//    draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color);
 }
 
 function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color) {
@@ -224,24 +224,24 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
 
         // Calculate the coordinates of the quadrilateral to be shaded
         const bottomLeft = vec4(
-            (centerX + (radius * Math.sin(2*Math.PI*i/numRadialPoints))),
-            (centerY + (radius * Math.cos(2*Math.PI*i/numRadialPoints))),
+            (centerX + (bottomRowRad * Math.sin(2*Math.PI*i/numRadialPoints))),
             bottomRowZ,
+            (centerY + (bottomRowRad * Math.cos(2*Math.PI*i/numRadialPoints))),
             1.00);
         const bottomRight = vec4(
-            (centerX + (radius * Math.sin(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
-            (centerY + (radius * Math.cos(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
+            (centerX + (bottomRowRad * Math.sin(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
             bottomRowZ,
+            (centerY + (bottomRowRad * Math.cos(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
             1.00);
         const topLeft = vec4(
-            (centerX + (radius * Math.sin(2*Math.PI*i/numRadialPoints))),
-            (centerY + (radius * Math.cos(2*Math.PI*i/numRadialPoints))),
+            (centerX + (topRowRad * Math.sin(2*Math.PI*i/numRadialPoints))),
             topRowZ,
+            (centerY + (topRowRad * Math.cos(2*Math.PI*i/numRadialPoints))),
             1.00);
         const topRight = vec4(
-            (centerX + (radius * Math.sin(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
-            (centerY + (radius * Math.cos(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
+            (centerX + (topRowRad * Math.sin(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
             topRowZ,
+            (centerY + (topRowRad * Math.cos(2*Math.PI*((i+1)%numRadialPoints)/numRadialPoints))),
             1.00);
 
         // Calculate normal vector to the quadrilateral
@@ -249,16 +249,18 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
                                     subtract(topLeft, bottomLeft)));
 
         // Push the points to the points array
-        points.push(bottomLeft);
-        points.push(bottomRight);
-        points.push(topRight);
-        points.push(bottomLeft);
-        points.push(topLeft);
-        points.push(topRight);
-
-        // Push the color to the colors array
-        // Push the normal vector to the normals array
+        var pIn=[bottomLeft,bottomRight,topLeft,topRight];
+        var texIn=[];
+        var addOrder=[0,1,3,0,2,3];
+       
+        for(let i=0;i<4;i++){
+        	texIn.push(vec2(pIn[i][0],pIn[i][1]));
+        }
+        
+        // Push the points to arrays
         for (let k=0; k<6; k++) {
+        	points.push(pIn[addOrder[k]]);
+        	texcoords.push(texIn[addOrder[k]]);
             colors.push(color);
             normals.push(normal);
         }
@@ -269,7 +271,7 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
 }
 
 function calc_hemisphere_points(totalLayers, numRadialPoints) {
-    return (6*numRadialPoints*(totalLayers-2)) + (3*numRadialPoints);
+    return (6*numRadialPoints*(totalLayers-2));// + (3*numRadialPoints);
 }
 
 function draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color) {
@@ -306,6 +308,7 @@ function draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bot
         for (let k=0; k<3; k++) {
             colors.push(color);
             normals.push(normal);
+            texcoords.push(vec2(0,0));
         }
     }
 }
@@ -377,6 +380,8 @@ function build_burger() {
     build_cheese();
     build_lettuce();
     build_top_bun();
+
+    console.log(points.length+" "+colors.length+" "+normals.length+" "+texcoords.length+" "+topBunPoints+" "+burgerPoints);
 }
 
 function wall()
@@ -716,7 +721,7 @@ function render() {
 	gl.drawArrays(gl.LINE_LOOP, burgerPoints, wallPoints);
     }
 
-    console.log(burgerPoints);
+//    console.log(burgerPoints);
     ModelView = mult(ModelView,
     		     mult(translate(trans[0], trans[1], trans[2]),
     			  mult(rotateZ(theta[2]),
@@ -727,14 +732,14 @@ function render() {
     gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
     gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 
-    // gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
+     gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
     
     gl.drawArrays(gl.TRIANGLE_FAN, 0,bottomBunPoints);
     gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints, pattyPoints);
     gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints, tomatoPoints);
     gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
     gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
-    gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
+    gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
 
 	// Draw scene
     if (!altView) {
