@@ -57,10 +57,10 @@ var Projection2 = frustum(-5, 5, -2.5, 2.5, 10, 40);
 //var AmbientLight = vec3(1.0, 1.0, 1.0);
 var AmbientLight = vec3(.3, .3, .3);
 var LightColor1 = vec3(1.0, 0.5, 0.5);
-var LightPosition1 = vec4(1.0, 1.0, 10.0, 1.0); // in world coordinates
-var LightPosition2 = vec4(-1.0, 1.0, 10.0, 1.0);
+var LightPosition1 = vec4(15.0, 1.0, 10.0, 1.0); // in world coordinates
+var LightPosition2 = vec4(-15.0, 1.0, 10.0, 1.0);
 var LightColor2 = vec3(1.0, 0.5, 0.5);
-var Shininess = 1000;
+var Shininess = 200;
 
 var ModelViewMatrixLoc;
 var NormalMatrixLoc;
