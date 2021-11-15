@@ -19,6 +19,7 @@ var bottomBunPoints = 0;
 var program; 
 
 let bunColorVec = vec4(0.957, 0.643, 0.377, 1.000);
+const pattyColorVec = vec4(0.35, 0.17, 0.05, 1.00);
 
 var xAxis = 0;
 var yAxis = 1;
@@ -123,6 +124,77 @@ function quad(a, b, c, d, color, y1, y2, l)
 	normals.push(n);
 	texcoords.push(texCoord[tindices[i]]);
     }
+}
+
+function addCylinder(centerX, centerY, radius, numRadialPoints, bottomZ, height, topColorVec, wallColorVec) {
+    let vertices = [];
+    let numCylPoints = 0;
+    // Setting top layer
+    for (let i=0; i<360; i+=(360/numRadialPoints)) {
+        let x = vec4(centerX+(radius*(Math.cos(radians(i)))), bottomZ, centerY+(radius*(Math.sin(radians(i)))), 1.00);
+        vertices.push(x);
+    }
+    // Setting bottom layer
+    for (let i=0; i<360; i+=360/numRadialPoints) {
+        let x = vec4(centerX+(radius*(Math.cos(radians(i)))), bottomZ+height, centerY+(radius*(Math.sin(radians(i)))), 1.00);
+        vertices.push(x);
+    }
+    // Setting center point for bottom and top
+    vertices.push(vec4(centerX, bottomZ, centerY, 1.00));
+    vertices.push(vec4(centerX, bottomZ+height, centerY, 1.00));
+    // Adding outer wall of cylinder
+    for (let i=0; i<numRadialPoints-1; i++) {
+        points.push(vertices[i]);
+        points.push(vertices[i+1]);
+        points.push(vertices[i+numRadialPoints+1]);
+        points.push(vertices[i]);
+        points.push(vertices[i+numRadialPoints]);
+        points.push(vertices[i+numRadialPoints+1]);
+        let norm = normalize(cross(subtract(vertices[i+numRadialPoints+1], vertices[i]), subtract(vertices[i+1], vertices[i])));
+        for (let k=0; k<6; k++) {
+            normals.push(norm);
+            colors.push(wallColorVec);
+            numCylPoints++;
+        }
+    }
+    points.push(vertices[numRadialPoints-1]);
+    points.push(vertices[0]);
+    points.push(vertices[numRadialPoints]);
+    points.push(vertices[numRadialPoints-1]);
+    points.push(vertices[(2*numRadialPoints)-1]);
+    points.push(vertices[numRadialPoints]);
+    let norm = normalize(cross(subtract(vertices[numRadialPoints], vertices[numRadialPoints-1]), subtract(vertices[0], vertices[numRadialPoints-1])));
+    for (let k=0; k<6; k++) {
+        normals.push(norm);
+        colors.push(wallColorVec);
+        numCylPoints++;
+    }
+    // Adding top circle
+    for (let i=0; i<numRadialPoints-1; i++) {
+        points.push(vertices[2*numRadialPoints+1]);
+        points.push(vertices[numRadialPoints+i]);
+        points.push(vertices[numRadialPoints+i+1]);
+        norm = normalize(cross(subtract(vertices[numRadialPoints+i], vertices[2*numRadialPoints+1]), subtract(vertices[numRadialPoints+i+1], vertices[2*numRadialPoints+1])));
+        for (let k=0; k<3; k++) {
+            normals.push(norm);
+            colors.push(topColorVec);
+            numCylPoints++;
+        }
+    }
+    points.push(vertices[2*numRadialPoints+1]);
+    points.push(vertices[2*numRadialPoints-1]);
+    points.push(vertices[numRadialPoints]);
+    norm = normalize(cross(subtract(vertices[2*numRadialPoints-1], vertices[2*numRadialPoints+1]), subtract(vertices[numRadialPoints], vertices[2*numRadialPoints+1])));
+    for (let k=0; k<3; k++) {
+        normals.push(norm);
+        colors.push(topColorVec);
+        numCylPoints++;
+    }
+    console.log(`Cylinder with ${numRadialPoints} radial points has ${numCylPoints} total points`);
+}
+
+function calc_cylinder_points(numRadialPoints) {
+    return numRadialPoints * 9;
 }
 
 function drawCyl(startX,startY,height,offset,radius,color) {
@@ -338,29 +410,46 @@ function build_cheese() {
 function build_tomato() {
     console.log(tomato)
     if(tomato) {
-        drawCyl(0,0,currentHeight,-0.125,0.65,vec4(0.9,0,0,1));
+        const red = vec4(0.9, 0.0, 0.0, 1.0);
+        const numRadialPoints = 100;
+        // drawCyl(0,0,currentHeight,-0.125,0.65,vec4(0.9,0,0,1));
+        addCylinder(0, 0, 0.65, numRadialPoints, currentHeight, 0.125, red, red);
         currentHeight += 0.125;
-        tomatoPoints += 6*numPtsCirc;
-        burgerPoints += 6*numPtsCirc;
+        const numPoints = calc_cylinder_points(numRadialPoints);
+        console.log(burgerPoints);
+        tomatoPoints += numPoints;
+        burgerPoints += numPoints;
+        console.log(burgerPoints);
     } 
     console.log("tomato: " + tomatoPoints + " burger now: "+ burgerPoints)
 }
 
 function build_patty() {
     if(patty) {
-        drawCyl(0,0,currentHeight,-0.25,0.75,vec4(0.9,0.35,0.05,1));
+        // drawCyl(0,0,currentHeight,-0.25,0.75,vec4(0.9,0.35,0.05,1));
+        let numRadialPoints = 100;
+        addCylinder(0, 0, 0.75, numRadialPoints, currentHeight, 0.25, pattyColorVec, pattyColorVec);
         currentHeight += 0.25;
-        pattyPoints += 6*numPtsCirc;
-        burgerPoints += 6*numPtsCirc;
+        const numPoints = calc_cylinder_points(numRadialPoints);
+        pattyPoints += numPoints;
+        burgerPoints += numPoints;
     } 
     console.log("patty: " + pattyPoints + " burger now: "+ burgerPoints);
 }
 
 function build_bottom_bun() {
-    drawCyl(0,0,currentHeight,-0.25,0.75,vec4(.9569,.6431,.3765,1));
+    // drawCyl(0,0,currentHeight,-0.25,0.75,vec4(.9569,.6431,.3765,1));
+    // currentHeight += 0.25;
+    // bottomBunPoints += 6*numPtsCirc;
+    // burgerPoints += 6*numPtsCirc;
+    // console.log("bottom: " + bottomBunPoints + " burger now: "+ burgerPoints);
+    console.log("Building bottom bun");
+    let numRadialPoints = 100   ;
+    addCylinder(0, 0, 0.80, numRadialPoints, currentHeight, 0.25, bunColorVec, bunColorVec);
     currentHeight += 0.25;
-    bottomBunPoints += 6*numPtsCirc;
-    burgerPoints += 6*numPtsCirc;
+    const numPoints = calc_cylinder_points(numRadialPoints);
+    pattyPoints += numPoints;
+    burgerPoints += numPoints;
     console.log("bottom: " + bottomBunPoints + " burger now: "+ burgerPoints);
 }
 
@@ -678,14 +767,14 @@ function render() {
     gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
     gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 
-     gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
-    
-    gl.drawArrays(gl.TRIANGLE_FAN, 0,bottomBunPoints);
-    gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints, pattyPoints);
-    gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints, tomatoPoints);
-    gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
-    gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
-    gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
+    gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
+    // gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
+    // gl.drawArrays(gl.TRIANGLES, 0,bottomBunPoints);
+    // gl.drawArrays(gl.TRIANGLES, bottomBunPoints, pattyPoints);
+    // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints, tomatoPoints);
+    // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
+    // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
+    // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
 
 	// Draw scene
     if (!altView) {
@@ -722,13 +811,14 @@ function render() {
 	    gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
 	    gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 	    
+        gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
         // gl.drawArrays(gl.TRIANGLE_FAN, 0, burgerPoints);
-        gl.drawArrays(gl.TRIANGLE_FAN, 0,bottomBunPoints);
-        gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints, pattyPoints);
-        gl.drawArrays(gl.TRIANGLE_FAN, bottomBunPoints+pattyPoints, tomatoPoints);
-        gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
-        gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
-        gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
+        // gl.drawArrays(gl.TRIANGLES, 0,bottomBunPoints);
+        // gl.drawArrays(gl.TRIANGLES, bottomBunPoints, pattyPoints);
+        // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints, tomatoPoints);
+        // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
+        // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
+        // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
 	}
     }
     
