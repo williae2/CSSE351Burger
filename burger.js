@@ -29,6 +29,7 @@ var cheese = true;
 var tomato = true;
 var patty = true;
 var lettuce = true;
+var bigBurgerMode = false;
 
 var numPtsCirc = 50;
 var axis = 1;
@@ -471,12 +472,21 @@ function build_burger() {
 
 function wall()
 {
+    console.log(`Big Burger Mode: ${bigBurgerMode}`);
     var vertices = [
         vec4(-5.0, -2.5, -5.0, 1.0),
         vec4( 5.0, -2.5, -5.0, 1.0),
         vec4( 5.0,  2.5, -5.0, 1.0),
         vec4(-5.0,  2.5, -5.0, 1.0),
     ];
+    if (bigBurgerMode) {
+        vertices = [
+            vec4(-150, -75, -5, 1),
+            vec4( 150, -75, -5, 1),
+            vec4( 150,  75, -5, 1),
+            vec4(-150,  75, -5, 1),
+        ];
+    }
 
     var vertexColor = vec4(0.5, 0.5, 0.5, 1.0);
 
@@ -675,6 +685,25 @@ window.onload = function init()
         } else {
             console.log("tomato false");
             tomato = false;
+        }
+	    resetBurger();
+    };
+
+    var bigBurgerCheckbox = document.getElementById("bigBurgerB");
+    if (bigBurgerCheckbox.checked) {
+        console.log("big burger mode activated");
+        bigBurgerMode = true;
+    } else {
+        console.log("big burger mode in waiting");
+        bigBurgerMode = false;
+    }
+    bigBurgerCheckbox.onchange = function(event) {
+        if (bigBurgerCheckbox.checked) {
+            console.log("big burger mode activated");
+            bigBurgerMode = true;
+        } else {
+            console.log("big burger mode in waiting");
+            bigBurgerMode = false;
         }
 	    resetBurger();
     };
