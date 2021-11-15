@@ -250,7 +250,7 @@ function build_top_bun() {
     // startX,startY,height,offset,radius,color
     const layers = 15;
     const radialPoints = 30;
-    draw_hemisphere(layers, radialPoints, 0, 0, currentHeight, 0.75, 0.75, bunColorVec);
+    draw_hemisphere(layers, radialPoints, 0, 0, currentHeight, 0.75, bunColorVec);
     // topBunPoints += 6*numPtsCirc;
     // burgerPoints += 6*numPtsCirc;
     const hemispherePoints = calc_hemisphere_points(layers, radialPoints);
@@ -306,7 +306,7 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
             1.00);
 
         // Calculate normal vector to the quadrilateral
-        const normal = normalize(cross(subtract(bottomLeft, bottomRight),
+        const normal = normalize(cross(subtract(bottomRight, bottomLeft),
                                     subtract(topLeft, bottomLeft)));
 
         // Push the points to the points array
