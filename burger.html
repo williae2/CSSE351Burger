@@ -58,6 +58,7 @@ uniform float uTextureOn;
 uniform sampler2D uTextureMap1;
 uniform sampler2D uTextureMap2;
 
+uniform sampler2D uTextureMap3;
 
 void
 main()
@@ -92,7 +93,9 @@ main()
   fColor = texture(uTextureMap1, vTexCoord)+vec4(specD, vColor.a);
   } else if(uTextureOn == 2.0){
     fColor = texture(uTextureMap2, vTexCoord)+vec4(specD, vColor.a);
-  } else {
+  } else if(uTextureOn == 3.0){
+    fColor = texture(uTextureMap3, vTexCoord)+vec4(specD, vColor.a);
+  }else {
     fColor = vec4(opuD, vColor.a);
   }
 }
