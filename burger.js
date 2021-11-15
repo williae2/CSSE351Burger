@@ -386,15 +386,16 @@ function draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bot
 function build_lettuce() {
     if(lettuce) {
         console.log("Building lettuce");
-        quad(1, 0, 3, 2, 3,currentHeight,currentHeight+0.0625,1.25);
-        quad(2, 3, 7, 6, 3,currentHeight,currentHeight+0.0625,1.25);
-        quad(3, 0, 4, 7, 3,currentHeight,currentHeight+0.0625,1.25);
-        quad(6, 5, 1, 2, 3,currentHeight,currentHeight+0.0625,1.25);
-        quad(4, 5, 6, 7, 3,currentHeight,currentHeight+0.0625,1.25);
-        quad(5, 4, 0, 1, 3,currentHeight,currentHeight+0.0625,1.25);
-        currentHeight += 0.0625;
+        const red = vec4(0.0, 0.9, 0.0, 1.0);
+        const numRadialPoints = 20;
+        const height = .05;
+        addCylinder(.2, .2, .2, numRadialPoints, currentHeight, height, red, red);
+        addCylinder(-.3, -.3, .2, numRadialPoints, currentHeight, height, red, red);
+        addCylinder(.4, -.4, .2, numRadialPoints, currentHeight, height, red, red);
+        
+        currentHeight += height;
         lettucePoints+=36;
-        burgerPoints+=36;
+        burgerPoints+=3*calc_cylinder_points(numRadialPoints);
     }
 }
 
@@ -594,7 +595,9 @@ window.onload = function init()
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-    gl.uniform1i(gl.getUniformLocation(program, "uTextureMap"), 0);
+    gl.uniform1i(gl.getUniformLocation(program, "uTextureMap1"), 0);
+
+    
 
     framebuffer = gl.createFramebuffer();
     framebuffer.width = canvas.width;
@@ -615,6 +618,26 @@ window.onload = function init()
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+    var image = new Image();
+    image.src = "bun.png";
+    // var image = document.getElementById("texImage");
+
+
+    var texture2 = gl.createTexture();
+    // This is necessary to get the texture right side up
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture2);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+    gl.uniform1i(gl.getUniformLocation(program, "uTextureMap2"), 0);
     
 
 
@@ -842,7 +865,7 @@ function render() {
 	    gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
 	    gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 	    
-        gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
+        gl.drawArrays(gl.TRIANGLES, 0, burgerPoints-topBunPoints);
         // gl.drawArrays(gl.TRIANGLE_FAN, 0, burgerPoints);
         // gl.drawArrays(gl.TRIANGLES, 0,bottomBunPoints);
         // gl.drawArrays(gl.TRIANGLES, bottomBunPoints, pattyPoints);
@@ -850,6 +873,10 @@ function render() {
         // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
         // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
         // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
+            
+	    gl.uniform1f(TextureOnLoc, 2.0);
+
+        gl.drawArrays(gl.TRIANGLES, burgerPoints-topBunPoints, topBunPoints);
 	}
     }
     
