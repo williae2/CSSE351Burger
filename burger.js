@@ -394,12 +394,13 @@ function build_lettuce() {
 
 function build_cheese() {
     if(cheese) {
-        quad(1, 0, 3, 2, 2,currentHeight,currentHeight+0.0625,1.1);
-        quad(2, 3, 7, 6, 2,currentHeight,currentHeight+0.0625,1.1);
-        quad(3, 0, 4, 7, 2,currentHeight,currentHeight+0.0625,1.1);
-        quad(6, 5, 1, 2, 2,currentHeight,currentHeight+0.0625,1.1);
-        quad(4, 5, 6, 7, 2,currentHeight,currentHeight+0.0625,1.1);
-        quad(5, 4, 0, 1, 2,currentHeight,currentHeight+0.0625,1.1);
+        const length = 1.28;
+        quad(1, 0, 3, 2, 2,currentHeight,currentHeight+0.0625,length);
+        quad(2, 3, 7, 6, 2,currentHeight,currentHeight+0.0625,length);
+        quad(3, 0, 4, 7, 2,currentHeight,currentHeight+0.0625,length);
+        quad(6, 5, 1, 2, 2,currentHeight,currentHeight+0.0625,length);
+        quad(4, 5, 6, 7, 2,currentHeight,currentHeight+0.0625,length);
+        quad(5, 4, 0, 1, 2,currentHeight,currentHeight+0.0625,length);
         currentHeight += 0.0625;
         cheesePoints+=36;
         burgerPoints+=36;
@@ -412,9 +413,10 @@ function build_tomato() {
     if(tomato) {
         const red = vec4(0.9, 0.0, 0.0, 1.0);
         const numRadialPoints = 100;
+        const height = 0.1;
         // drawCyl(0,0,currentHeight,-0.125,0.65,vec4(0.9,0,0,1));
-        addCylinder(0, 0, 0.65, numRadialPoints, currentHeight, 0.125, red, red);
-        currentHeight += 0.125;
+        addCylinder(0, 0, 0.65, numRadialPoints, currentHeight, height, red, red);
+        currentHeight += height;
         const numPoints = calc_cylinder_points(numRadialPoints);
         console.log(burgerPoints);
         tomatoPoints += numPoints;
@@ -428,8 +430,9 @@ function build_patty() {
     if(patty) {
         // drawCyl(0,0,currentHeight,-0.25,0.75,vec4(0.9,0.35,0.05,1));
         let numRadialPoints = 100;
-        addCylinder(0, 0, 0.75, numRadialPoints, currentHeight, 0.25, pattyColorVec, pattyColorVec);
-        currentHeight += 0.25;
+        let height = 0.15;
+        addCylinder(0, 0, 0.75, numRadialPoints, currentHeight, height, pattyColorVec, pattyColorVec);
+        currentHeight += height;
         const numPoints = calc_cylinder_points(numRadialPoints);
         pattyPoints += numPoints;
         burgerPoints += numPoints;
@@ -457,8 +460,8 @@ function build_burger() {
     currentHeight = -0.5;
     build_bottom_bun();
     build_patty();
-    build_tomato();
     build_cheese();
+    build_tomato();
     build_lettuce();
     build_top_bun();
 
