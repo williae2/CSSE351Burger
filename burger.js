@@ -55,11 +55,11 @@ var Projection2 = frustum(-5, 5, -2.5, 2.5, 10, 40);
 
 //var AmbientLight = vec3(1.0, 1.0, 1.0);
 var AmbientLight = vec3(.3, .3, .3);
-var LightColor1 = vec3(2.0, 0.0, 0.0);
-var LightPosition1 = vec4(1.0, 1.0, 5.0, 1.0); // in world coordinates
-var LightPosition2 = vec4(-1.0, 1.0, 5.0, 1.0);
-var LightColor2 = vec3(2.0, 0.0, 0.0);
-var Shininess = 300;
+var LightColor1 = vec3(1.0, 0.5, 0.5);
+var LightPosition1 = vec4(1.0, 1.0, 10.0, 1.0); // in world coordinates
+var LightPosition2 = vec4(-1.0, 1.0, 10.0, 1.0);
+var LightColor2 = vec3(1.0, 0.5, 0.5);
+var Shininess = 1000;
 
 var ModelViewMatrixLoc;
 var NormalMatrixLoc;
@@ -153,6 +153,7 @@ function addCylinder(centerX, centerY, radius, numRadialPoints, bottomZ, height,
         let norm = normalize(cross(subtract(vertices[i+numRadialPoints+1], vertices[i]), subtract(vertices[i+1], vertices[i])));
         for (let k=0; k<6; k++) {
             normals.push(norm);
+            texcoords.push(vec2(0, 0));
             colors.push(wallColorVec);
             numCylPoints++;
         }
@@ -166,6 +167,7 @@ function addCylinder(centerX, centerY, radius, numRadialPoints, bottomZ, height,
     let norm = normalize(cross(subtract(vertices[numRadialPoints], vertices[numRadialPoints-1]), subtract(vertices[0], vertices[numRadialPoints-1])));
     for (let k=0; k<6; k++) {
         normals.push(norm);
+        texcoords.push(vec2(0, 0));
         colors.push(wallColorVec);
         numCylPoints++;
     }
@@ -177,6 +179,7 @@ function addCylinder(centerX, centerY, radius, numRadialPoints, bottomZ, height,
         norm = normalize(cross(subtract(vertices[numRadialPoints+i], vertices[2*numRadialPoints+1]), subtract(vertices[numRadialPoints+i+1], vertices[2*numRadialPoints+1])));
         for (let k=0; k<3; k++) {
             normals.push(norm);
+            texcoords.push(vec2(0, 0));
             colors.push(topColorVec);
             numCylPoints++;
         }
@@ -187,6 +190,7 @@ function addCylinder(centerX, centerY, radius, numRadialPoints, bottomZ, height,
     norm = normalize(cross(subtract(vertices[2*numRadialPoints-1], vertices[2*numRadialPoints+1]), subtract(vertices[numRadialPoints], vertices[2*numRadialPoints+1])));
     for (let k=0; k<3; k++) {
         normals.push(norm);
+        texcoords.push(vec2(0, 0));
         colors.push(topColorVec);
         numCylPoints++;
     }
@@ -248,8 +252,8 @@ function build_top_bun() {
     // Hemispheres are rediculously hard to draw
     // drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(.9569,.6431,.3765,1));
     // startX,startY,height,offset,radius,color
-    const layers = 15;
-    const radialPoints = 30;
+    const layers = 50;
+    const radialPoints = 100;
     draw_hemisphere(layers, radialPoints, 0, 0, currentHeight, 0.75, bunColorVec);
     // topBunPoints += 6*numPtsCirc;
     // burgerPoints += 6*numPtsCirc;
@@ -754,7 +758,7 @@ function render() {
 	gl.drawArrays(gl.LINE_LOOP, burgerPoints, wallPoints);
     }
 
-//    console.log(burgerPoints);
+    // console.log(burgerPoints);
     ModelView = mult(ModelView,
     		     mult(translate(trans[0], trans[1], trans[2]),
     			  mult(rotateZ(theta[2]),
