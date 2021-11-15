@@ -190,7 +190,6 @@ function addCylinder(centerX, centerY, radius, numRadialPoints, bottomZ, height,
         colors.push(topColorVec);
         numCylPoints++;
     }
-    console.log(`Cylinder with ${numRadialPoints} radial points has ${numCylPoints} total points`);
 }
 
 function calc_cylinder_points(numRadialPoints) {
@@ -257,14 +256,12 @@ function build_top_bun() {
     const hemispherePoints = calc_hemisphere_points(layers, radialPoints);
     topBunPoints += hemispherePoints;
     burgerPoints += hemispherePoints;
-    console.log("top: " + topBunPoints + " burger now: "+ burgerPoints);
 }
 
 // TODO: add an option to "squish" the height of the hemisphere
 function draw_hemisphere(totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color) {
     console.log("Drawing hemisphere");
     for (let band=0; band<totalLayers-2; band++) {
-        console.log("Drawing band ", band);
         draw_hemisphere_layer(band, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color);
     }
 }
@@ -379,6 +376,7 @@ function draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bot
 
 function build_lettuce() {
     if(lettuce) {
+        console.log("Building lettuce");
         quad(1, 0, 3, 2, 3,currentHeight,currentHeight+0.0625,1.25);
         quad(2, 3, 7, 6, 3,currentHeight,currentHeight+0.0625,1.25);
         quad(3, 0, 4, 7, 3,currentHeight,currentHeight+0.0625,1.25);
@@ -389,11 +387,11 @@ function build_lettuce() {
         lettucePoints+=36;
         burgerPoints+=36;
     }
-    console.log("lettuce: " + lettucePoints + " burger now: "+ burgerPoints);
 }
 
 function build_cheese() {
     if(cheese) {
+        console.log("Building change");
         const length = 1.28;
         quad(1, 0, 3, 2, 2,currentHeight,currentHeight+0.0625,length);
         quad(2, 3, 7, 6, 2,currentHeight,currentHeight+0.0625,length);
@@ -405,12 +403,12 @@ function build_cheese() {
         cheesePoints+=36;
         burgerPoints+=36;
     } 
-    console.log("cheese: " + cheesePoints + " burger now: "+ burgerPoints);
 }
 
 function build_tomato() {
     console.log(tomato)
     if(tomato) {
+        console.log("Building tomato");
         const red = vec4(0.9, 0.0, 0.0, 1.0);
         const numRadialPoints = 100;
         const height = 0.1;
@@ -418,16 +416,14 @@ function build_tomato() {
         addCylinder(0, 0, 0.65, numRadialPoints, currentHeight, height, red, red);
         currentHeight += height;
         const numPoints = calc_cylinder_points(numRadialPoints);
-        console.log(burgerPoints);
         tomatoPoints += numPoints;
         burgerPoints += numPoints;
-        console.log(burgerPoints);
     } 
-    console.log("tomato: " + tomatoPoints + " burger now: "+ burgerPoints)
 }
 
 function build_patty() {
     if(patty) {
+        console.log("Building patty");
         // drawCyl(0,0,currentHeight,-0.25,0.75,vec4(0.9,0.35,0.05,1));
         let numRadialPoints = 100;
         let height = 0.15;
@@ -445,7 +441,6 @@ function build_bottom_bun() {
     // currentHeight += 0.25;
     // bottomBunPoints += 6*numPtsCirc;
     // burgerPoints += 6*numPtsCirc;
-    // console.log("bottom: " + bottomBunPoints + " burger now: "+ burgerPoints);
     console.log("Building bottom bun");
     let numRadialPoints = 100   ;
     addCylinder(0, 0, 0.80, numRadialPoints, currentHeight, 0.25, bunColorVec, bunColorVec);
@@ -453,10 +448,10 @@ function build_bottom_bun() {
     const numPoints = calc_cylinder_points(numRadialPoints);
     pattyPoints += numPoints;
     burgerPoints += numPoints;
-    console.log("bottom: " + bottomBunPoints + " burger now: "+ burgerPoints);
 }
 
 function build_burger() {
+    console.log("Building burger");
     currentHeight = -0.5;
     build_bottom_bun();
     build_patty();
@@ -464,8 +459,6 @@ function build_burger() {
     build_tomato();
     build_lettuce();
     build_top_bun();
-
-    console.log(points.length+" "+colors.length+" "+normals.length+" "+texcoords.length+" "+topBunPoints+" "+burgerPoints);
 }
 
 function wall()
@@ -517,7 +510,6 @@ function resetBurger() {
     build_burger();
     wall();
     console.log("points in Normals = " + normals[normals.length-1] + " and total points in vertex is " + points.length);
-
 }
 
 window.onload = function init()
@@ -715,7 +707,6 @@ function render() {
     // Draw reflection into texture
     if (altView) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
 	if (textureView) {
 	    gl.viewport(0, canvas.height/4, canvas.width, canvas.height/2);
 
