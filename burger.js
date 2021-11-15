@@ -281,8 +281,8 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
     const topRowRad = Math.sqrt((radius*radius)-((topRowZ-bottomZ)*(topRowZ-bottomZ)));
 
     //we do a little flattening
-    bottomRowZ = bottomZ + 0.5*(radius * Math.sin(Math.PI/2 * currentLayer/totalLayers));
-    topRowZ = bottomZ + 0.5*(radius * Math.sin(Math.PI/2 * (currentLayer+1)/totalLayers));
+    bottomRowZ = bottomZ + 0.7*(radius * Math.sin(Math.PI/2 * currentLayer/totalLayers));
+    topRowZ = bottomZ + 0.7*(radius * Math.sin(Math.PI/2 * (currentLayer+1)/totalLayers));
 
     // Generate all rectangles around band
     for (let i=0; i<numRadialPoints; i++) {
@@ -447,8 +447,8 @@ function build_bottom_bun() {
     // burgerPoints += 6*numPtsCirc;
     console.log("Building bottom bun");
     let numRadialPoints = 100   ;
-    addCylinder(0, 0, 0.80, numRadialPoints, currentHeight, 0.25, bunColorVec, bunColorVec);
-    currentHeight += 0.25;
+    addCylinder(0, 0, 0.80, numRadialPoints, currentHeight, 0.2, bunColorVec, bunColorVec);
+    currentHeight += 0.2;
     const numPoints = calc_cylinder_points(numRadialPoints);
     pattyPoints += numPoints;
     burgerPoints += numPoints;
