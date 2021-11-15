@@ -269,16 +269,20 @@ function draw_hemisphere(totalLayers, numRadialPoints, centerX, centerY, bottomZ
 function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color) {
 
     // Get bottom horizontal band height
-    const bottomRowZ = bottomZ + (radius * Math.sin(Math.PI/2 * currentLayer/totalLayers));
+    var bottomRowZ = bottomZ + (radius * Math.sin(Math.PI/2 * currentLayer/totalLayers));
 
     // Get bottom horizontal band radius
     const bottomRowRad = Math.sqrt((radius*radius)-((bottomRowZ-bottomZ)*(bottomRowZ-bottomZ)));
 
     // Get top horizontal band height
-    const topRowZ = bottomZ + (radius * Math.sin(Math.PI/2 * (currentLayer+1)/totalLayers));
+    var topRowZ = bottomZ + (radius * Math.sin(Math.PI/2 * (currentLayer+1)/totalLayers));
 
     // Get top horizontal band radius
     const topRowRad = Math.sqrt((radius*radius)-((topRowZ-bottomZ)*(topRowZ-bottomZ)));
+
+    //we do a little flattening
+    bottomRowZ = bottomZ + 0.5*(radius * Math.sin(Math.PI/2 * currentLayer/totalLayers));
+    topRowZ = bottomZ + 0.5*(radius * Math.sin(Math.PI/2 * (currentLayer+1)/totalLayers));
 
     // Generate all rectangles around band
     for (let i=0; i<numRadialPoints; i++) {
