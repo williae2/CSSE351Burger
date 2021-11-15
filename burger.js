@@ -17,6 +17,7 @@ var cheesePoints = 0;
 var pattyPoints = 0;
 var bottomBunPoints = 0;
 var program; 
+var image;
 
 let bunColorVec = vec4(0.957, 0.643, 0.377, 1.000);
 const pattyColorVec = vec4(0.35, 0.17, 0.05, 1.00);
@@ -253,8 +254,8 @@ function build_top_bun() {
     // Hemispheres are rediculously hard to draw
     // drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(.9569,.6431,.3765,1));
     // startX,startY,height,offset,radius,color
-    const layers = 50;
-    const radialPoints = 100;
+    const layers = 10;
+    const radialPoints = 20;
     draw_hemisphere(layers, radialPoints, 0, 0, currentHeight, 0.75, bunColorVec);
     // topBunPoints += 6*numPtsCirc;
     // burgerPoints += 6*numPtsCirc;
@@ -619,6 +620,9 @@ window.onload = function init()
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
+    image = new Image();
+    image.src = "bun.png";
+
     
     
 
@@ -803,7 +807,7 @@ function render() {
     gl.uniformMatrix4fv(ModelViewMatrixLoc, false, flatten(ModelView));
     gl.uniformMatrix4fv(NormalMatrixLoc, false, flatten(Normal));
 
-    gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
+    gl.drawArrays(gl.TRIANGLES, 0, burgerPoints-topBunPoints);
     // gl.drawArrays(gl.TRIANGLES, 0, burgerPoints);
     // gl.drawArrays(gl.TRIANGLES, 0,bottomBunPoints);
     // gl.drawArrays(gl.TRIANGLES, bottomBunPoints, pattyPoints);
@@ -811,6 +815,28 @@ function render() {
     // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints, cheesePoints);
     // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints, lettucePoints);
     // gl.drawArrays(gl.TRIANGLES, bottomBunPoints+pattyPoints+tomatoPoints+cheesePoints+lettucePoints, topBunPoints);
+   
+    // var image = document.getElementById("texImage");
+
+
+    var texture2 = gl.createTexture();
+    // This is necessary to get the texture right side up
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture2);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+    gl.uniform1i(gl.getUniformLocation(program, "uTextureMap2"), 0);
+
+    gl.uniform1f(TextureOnLoc, 2.0);
+
+        gl.drawArrays(gl.TRIANGLES, burgerPoints-topBunPoints, topBunPoints);
 
 	// Draw scene
     if (!altView) {
@@ -836,8 +862,6 @@ function render() {
 	gl.drawArrays(gl.TRIANGLES, burgerPoints, wallPoints);
     
 	if (obj) {
-        var image = new Image();
-    image.src = "bun.png";
     // var image = document.getElementById("texImage");
 
 
