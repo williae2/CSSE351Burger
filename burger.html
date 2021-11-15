@@ -55,7 +55,9 @@ uniform float uDiffuseOn;
 uniform float uSpecularOn;
 uniform float uTextureOn;
 
-uniform sampler2D uTextureMap;
+uniform sampler2D uTextureMap1;
+uniform sampler2D uTextureMap2;
+
 
 void
 main()
@@ -87,9 +89,11 @@ main()
   }
 
   if (uTextureOn == 1.0) {
-  fColor = texture(uTextureMap, vTexCoord)+vec4(specD, vColor.a);
+  fColor = texture(uTextureMap1, vTexCoord)+vec4(specD, vColor.a);
+  } else if(uTextureOn == 2.0){
+    fColor = texture(uTextureMap2, vTexCoord)+vec4(specD, vColor.a);
   } else {
-   fColor = vec4(opuD, vColor.a);
+    fColor = vec4(opuD, vColor.a);
   }
 }
     </script>
@@ -110,7 +114,7 @@ main()
     <label for="cheeseOn">Cheese</label>
     &ensp;
     <input type="checkbox" id="lettuceB" name="lettuceOn" checked>
-    <label for="lettuceOn">Lettuce</label>
+    <label for="lettuceOn">Pickle</label>
     &ensp;
     <input type="checkbox" id="tomatoB" name="tomatoOn" checked>
     <label for="tomatoOn">Tomato</label>
