@@ -171,15 +171,18 @@ function drawCyl(startX,startY,height,offset,radius,color) {
         points.push(vec4(x, height, y, 1.0));
     }
 }
+
 function build_top_bun() {
     // This is a substitute for a hemisphere
     // Hemispheres are rediculously hard to draw
     // drawCyl(0,0,currentHeight+0.25,0.25,0.75,vec4(.9569,.6431,.3765,1));
     // startX,startY,height,offset,radius,color
-    draw_hemisphere(12, 30, 0, 0, currentHeight, 0.75, 0.75, bunColorVec);
+    const layers = 15;
+    const radialPoints = 30;
+    draw_hemisphere(layers, radialPoints, 0, 0, currentHeight, 0.75, 0.75, bunColorVec);
     // topBunPoints += 6*numPtsCirc;
     // burgerPoints += 6*numPtsCirc;
-    const hemispherePoints = calc_hemisphere_points(12, 30);
+    const hemispherePoints = calc_hemisphere_points(layers, radialPoints);
     topBunPoints += hemispherePoints;
     burgerPoints += hemispherePoints;
     console.log("top: " + topBunPoints + " burger now: "+ burgerPoints);
@@ -192,8 +195,6 @@ function draw_hemisphere(totalLayers, numRadialPoints, centerX, centerY, bottomZ
         console.log("Drawing band ", band);
         draw_hemisphere_layer(band, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color);
     }
-//    console.log("Drawing cap"); TODO you cant tell the difference lmao
-//    draw_hemisphere_cap(totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color);
 }
 
 function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, centerX, centerY, bottomZ, radius, color) {
@@ -209,15 +210,6 @@ function draw_hemisphere_layer(currentLayer, totalLayers, numRadialPoints, cente
 
     // Get top horizontal band radius
     const topRowRad = Math.sqrt((radius*radius)-((topRowZ-bottomZ)*(topRowZ-bottomZ)));
-
-    // Logging stuff to console for testing
-    // console.log(`Current Layer: ${currentLayer}`);
-    // console.log(`Bottom Z: ${bottomZ}`);
-    // console.log(`Sphere Radius: ${radius}`);
-    // console.log(`Bottom Row Z: ${bottomRowZ}`);
-    // console.log(`Bottom Row Rad: ${bottomRowRad}`);
-    // console.log(`Top Row Z: ${topRowZ}`);
-    // console.log(`Top Row Rad: ${topRowRad}`);
 
     // Generate all rectangles around band
     for (let i=0; i<numRadialPoints; i++) {
